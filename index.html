@@ -127,6 +127,12 @@
 				
 			</div>
 			<hr>
+			<div class="moves">
+				<h2>High Score</h2>
+				<span id="high_score">0</span>
+			</div>
+			
+			<hr>
 			<div>
 				<h2>Info</h2>
 				<p>Use ← → ↑ ↓ keys</p>
@@ -141,13 +147,27 @@
 		// for (var i = allBlock.length - 1; i >= 0; i--) {
 		// 	allBlock[i].innerHTML='red';
 		// }
+		$("#high_score").html(localStorage.getItem("hscore")); //write high score
 		$( ".block" ).css( "background-color", "#ddd" );
 		$(".number").html("");
 		initializeTwoBlocks();
 		changeBlockColor();
 	}
-
 	
+	/* to set Highscore*/
+	function setHighScore(new_score) {
+		// Check browser support
+		if (typeof(Storage) !== "undefined") {
+		    if (new_score > localStorage.getItem("hscore")) {
+		   	 	localStorage.setItem("hscore", new_score);
+		   	 	console.log(localStorage.getItem("hscore"));
+		    }
+		} else {
+		    console.log("Web storage not supported");
+		}
+	}
+
+
 	$(document).keydown(function(e){
 		switch(e.which) {
 	        case 37: // left
@@ -387,6 +407,7 @@
 		var old_score = eval($("#total_score").html());
 		var new_score = old_score+ 3 * eval(new_value);
 		$("#total_score").html(new_score);
+		setHighScore(new_score);
 	}
 
 	function checkGameOver(){
