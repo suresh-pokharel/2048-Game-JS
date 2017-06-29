@@ -51,6 +51,16 @@
 			margin-top: 4%
 
 		}
+		#new_game{
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 8px 5px;
+    border: none;
+    cursor: pointer;
+    width: 90%;
+
+	}
 	</style>
 </head>
 <body>
@@ -138,18 +148,31 @@
 				<p>Use ← → ↑ ↓ keys</p>
 				<p>Make <b>2048</b></p>
 			</div>
+			<div>
+				<button id="new_game" onclick="startNewGame();">Start New Game</button>
+			</div>
 		</div>
 	</div>
 </body>
 <script>
 	window.onload = function() {
-		// var allBlocks = document.getElementsByClasName("block");
-		// for (var i = allBlock.length - 1; i >= 0; i--) {
-		// 	allBlock[i].innerHTML='red';
-		// }
 		$("#high_score").html(localStorage.getItem("hscore")); //write high score
 		$( ".block" ).css( "background-color", "#ddd" );
+
+		// continue if data exists in backup_array local storage
+		var result = JSON.parse(localStorage.getItem("backup_array"));
+		if (result) {
+			restoreForContinue();
+		}else{ //start new game if no previous data is stored
+			startNewGame();
+		}
+		
+	}
+
+	function startNewGame(){
 		$(".number").html("");
+		$("#total_moves").html('0');
+		$("#total_score").html('0');
 		initializeTwoBlocks();
 		changeBlockColor();
 	}
@@ -160,13 +183,46 @@
 		if (typeof(Storage) !== "undefined") {
 		    if (new_score > localStorage.getItem("hscore")) {
 		   	 	localStorage.setItem("hscore", new_score);
-		   	 	console.log(localStorage.getItem("hscore"));
 		    }
 		} else {
 		    console.log("Web storage not supported");
 		}
 	}
 
+	/* To store latest itemset for continue option */
+	function backupData() {
+		var allBlocks = document.getElementsByClassName("block");
+		var latest_array = [];
+
+		if (typeof(Storage) !== "undefined") {
+		   	 for (var i = 0; i < allBlocks.length; i++) {
+		   		latest_array.push($( "#blk-"+i).html());
+		   	}
+		   	localStorage.setItem("backup_array", JSON.stringify(latest_array));
+		   	localStorage.setItem("backup_moves", $("#total_moves").html());
+		   	localStorage.setItem("backup_score", $("#total_score").html());
+
+		    console.log(JSON.parse(localStorage.getItem("backup_array")));
+		}
+	}
+
+
+	function restoreForContinue(){
+		var allBlocks = document.getElementsByClassName("block");
+		var result = JSON.parse(localStorage.getItem("backup_array"));
+		console.log(result);
+		if (typeof(Storage) !== "undefined") { // to check if brower supports local storage
+		    if (result) {
+		   	 	for (var i = 0; i < allBlocks.length; i++) {
+		   			$( "#blk-"+i).html(result[i]);
+		   		}
+		   		$("#total_moves").html(localStorage.getItem("backup_moves"));
+		   		$("#total_score").html(localStorage.getItem("backup_score"));
+
+		   		changeBlockColor();
+		    }
+		}
+	}
 
 	$(document).keydown(function(e){
 		switch(e.which) {
@@ -265,7 +321,7 @@
 
 				if ($( "#blk-"+i).html() == "" && i<12) { //upshift the blank spaces
 					var temp= $( "#blk-"+(i+4)).html()
-					/*to check if some position changes as it doesnot make sense if both are empty space*/
+					/* to check if some position changes as it doesnot make sense if both are empty space*/
 					if (i<12 && (($("#blk-"+i).html() != "") || ($("#blk-"+(i+4)).html() != ""))) {
 						var changed_something = 1;
 					}
@@ -401,6 +457,7 @@
 		$( "#blk-"+new_item).html("2");
 		changeBlockColor();
 		checkGameOver();
+		backupData(); // for continue option
 	}
 
 	function updateScore(new_value){
