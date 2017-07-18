@@ -1,4 +1,9 @@
-
+/*
+      Author  : Suresh Pokharel
+      Email   : suresh.wrc@gmail.com
+      GitHub  : github.com/suresh021
+      URL     : psuresh.com.np
+*/ 
 	window.onload = function() {
 		$("#high_score").html(localStorage.getItem("hscore")); //write high score
 		$( ".block" ).css( "background-color", "#ddd" );
